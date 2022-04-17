@@ -5,7 +5,17 @@
 *.sql
 models
 models/*
+lib
+lib/*
+include
+include/*
+bin
+bin/*
+share
+share/*
 *.swp
+*_pyenv
+*_pyenv/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
