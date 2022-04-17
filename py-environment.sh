@@ -11,7 +11,7 @@
 #
 # 1. sudo apt update
 # 
-# 2. sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget
+# 2. sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libsqlite3-dev libreadline-dev libffi-dev wget libbz2-dev 
 #
 # 3. cd /tmp
 #
@@ -27,10 +27,10 @@
 #
 # 7.1. installation_dir=${HOME}/projects/.localpythons/3.7.13 ; mkdir -p ${installation_dir}
 #
-# 7.2. ./configure --prefix=${installation_dir} # This step may take some time
+# 7.2. ./configure --enable-optimizations --prefix=${installation_dir} # This step may take some time
 #
-# 8.1. sudo make
-# 8.2. sudo make install # To keep this version as an additional version to the existing ones in the system
+# 8.1. sudo make # enter here the number of cores
+# 8.2. sudo make altinstall # To keep this version as an additional version to the existing ones in the system
 #
 # 9. ${installation_dir}/bin/python3.7 --version # check the installation
 #
