@@ -5,6 +5,7 @@
 *.sql
 models
 models/*
+*.swp
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
