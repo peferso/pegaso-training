@@ -67,9 +67,11 @@ def main():
     max_features_list = [x / 100.0 for x in range(10, 105, 5)]
     criterion = 'squared_error'
     random_state = None
-    mape_min = 100.0
+    mape_min = baseline_mape
+    mape_std_min = 100.0
+    n_estimators_min = None
+    max_features_min = None
     times, rep_est, rep_mft, prec_list, mape_list, folds_list, rep_tms = ([] for i in range(7))
-    interations_remaining = len(n_est_list) * len(max_features_list)
 
     folds = 16
     cpu_cores = 4
@@ -86,12 +88,6 @@ def main():
     for n_estimators in n_est_list:
         for max_features in max_features_list:
 
-            # print('\tn_estimators:' + str(n_estimators))
-            # print('\tmax_features:' + str(max_features))
-            # print('\tCross validating over ' + str(folds) + '-folds...')
-            # print('\tFold computations parallelized over ' + str(cpu_cores) + ' cores...')
-
-            # print('\t\tMultiprocessing begins...')
             ti = time.time()
             for model in models:
                 model.set_hyperparameters(n_estimators, random_state, max_features, criterion)
@@ -100,22 +96,20 @@ def main():
             p.close()
             p.join()
             tf = time.time()
-            # print('\t\tMultiprocessing ends.')
-            # print('\t\t', result)
-            # print('\tCross validation finished.')
-            # print('\tElapsed:' + str(tf - ti))
 
             mape = np.average(np.array(result))
-            mape_var = np.std(np.array(result))
+            mape_std = np.std(np.array(result))
 
             f = open(model_file + '-grid_cross_val_data.csv', 'a')
-            print(n_estimators, max_features, *result, mape, mape_var, sep=',', end='\n', file=f)
+            print(n_estimators, max_features, *result, mape, mape_std, sep=',', end='\n', file=f)
             f.close()
 
             if mape < mape_min:
+                #if mape_std < mape_std_min:
                 mape_min = mape
-                n_estimators_min = n_estimators
+                mape_std_min = mape_std
                 max_features_min = max_features
+                n_estimators_min = n_estimators
 
             rep_est.append(n_estimators)
             rep_mft.append(max_features)
@@ -124,14 +118,24 @@ def main():
             folds_list.append(folds)
             rep_tms.append(tf - ti)
 
-            print('\tacc.', round(100.0 - mape, 2), n_estimators, max_features,
-                  ' - mape ', mape, mape_var,
-                  '  --- max acc.', round(100.0 - mape_min, 2), n_estimators_min, max_features_min)
-            # print('\tMinimum average mape accross folds found: ' + str(mape_min))
-            # print('\t  max. accuracy: ' + str(100.0 - mape_min))
-            # print('\t  n_estimators: ' + str(n_estimators_min))
-            # print('\t  max_features: ' + str(max_features_min))
-            #
+            print('Av. acc: {avacc} \tn_estimators: {ne}, max_features: {mf} \tAv. mape = {avmape}({sdmape}) '.
+                  format(
+                        avacc=str(round(100.0 - mape, 2)),
+                        ne=str(n_estimators),
+                        mf=str(max_features),
+                        avmape=str(round(mape, 2)),
+                        sdmape=str(round(mape_std, 2))
+                        )
+                  + '--- \tmin mape: {avmape}({sdmape}) for {ne}, {mf}. Max acc. {acc}'.
+                  format(
+                        ne=str(n_estimators_min),
+                        mf=str(max_features_min),
+                        avmape=str(round(mape_min, 2)),
+                        sdmape=str(round(mape_std_min, 2)),
+                        acc=str(round(100.0 - mape_min, 2))
+                        )
+                  )
+
             write_report(rep_est, rep_mft, mape_list, prec_list, folds_list, rep_tms, report_file)
 
     print('\nTraining the best model.\n')
@@ -173,7 +177,7 @@ def fetch_database_data():
                                       FROM 
                                         raw_data
                                       WHERE
-                                        brand IN (SELECT nb.brand FROM brands_count nb WHERE nb.num_cars>1000)
+                                        brand IN (SELECT nb.brand FROM brands_count nb WHERE nb.num_cars>500)
                                       ;""", connection)
     dfrd = pd.DataFrame(sql_query,
                         columns=['brand',  # One-hot
@@ -287,13 +291,14 @@ class Model:
         self.id = id
 
     def split_train_and_test_sets(self):
-        random_state = randint(0, 42)
         self.train_features, self.test_features, self.train_labels, self.test_labels, self.train_indx, self.test_indx = \
             train_test_split(self.features,
                              self.labels,
                              np.arange(self.features.shape[0]),
                              test_size=0.20,
-                             random_state=random_state)
+                             random_state=randint(0, 42))
+        #print('\nTrain set size {}. Test set size {}'.format(str(self.train_features.shape), str(self.test_features.shape)))
+        #print('\nTrain sample {}. Test sample {}.'.format(self.train_features[0, 0], self.test_features[0, 0]))
 
     def set_hyperparameters(self, n_estimators, random_state, max_features, criterion):
         self.n_estimators = n_estimators
@@ -306,7 +311,7 @@ class Model:
         rf = RandomForestRegressor(n_estimators=self.n_estimators,
                                    criterion=self.criterion,
                                    max_features=self.max_features,
-                                   random_state=self.random_state)
+                                   random_state=12)
         rf.fit(self.train_features, self.train_labels)
         predictions = rf.predict(self.test_features)
         rf = None

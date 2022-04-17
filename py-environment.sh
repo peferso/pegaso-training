@@ -47,21 +47,11 @@
 #
 # 14. cd virtualenv-20.14.1
 #
-# 15. sudo $installation_dir/bin/python3 setup.py install
-#
-# 16. cd ${installation_dir}/lib/python.3.7/lib-dynload
-#
-# 17. wget https://github.com/azwyane/simple_text_editor/blob/master/edi/_bz2.cpython-37m-x86_64-linux-gnu.so
-#
-# 18. sudo chmod 755 _bz2.cpython-38-x86_64-linux-gnu.so
-#
-# 19. sudo mv _bz2.cpython-38-x86_64-linux-gnu.so _bz2.cpython-37m-x86_64-linux-gnu.so # change 38 to 37m since it is for python 3.7
-#
-# 20. sudo cp _bz2.cpython-37m-x86_64-linux-gnu.so ../site-packages/
+# 15. sudo $installation_dir/bin/python3.7 setup.py install
 
 installation_dir=${HOME}/projects/.localpythons/3.7.13
 
-python_version=${installation_dir}/bin/python3
+python_version=${installation_dir}/bin/python3.7
 
 environment_name=${PWD##*/}_pyenv
 
