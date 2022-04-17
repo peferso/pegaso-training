@@ -11,7 +11,7 @@
 #
 # 1. sudo apt update
 # 
-# 2. sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libsqlite3-dev libreadline-dev libffi-dev wget libbz2-dev 
+# 2. sudo apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget
 #
 # 3. cd /tmp
 #
@@ -29,7 +29,7 @@
 #
 # 7.2. ./configure --enable-optimizations --prefix=${installation_dir} # This step may take some time
 #
-# 8.1. sudo make # enter here the number of cores
+# 8.1. sudo make
 # 8.2. sudo make altinstall # To keep this version as an additional version to the existing ones in the system
 #
 # 9. ${installation_dir}/bin/python3.7 --version # check the installation
@@ -48,6 +48,16 @@
 # 14. cd virtualenv-20.14.1
 #
 # 15. sudo $installation_dir/bin/python3 setup.py install
+#
+# 16. cd ${installation_dir}/lib/python.3.7/lib-dynload
+#
+# 17. wget https://github.com/azwyane/simple_text_editor/blob/master/edi/_bz2.cpython-37m-x86_64-linux-gnu.so
+#
+# 18. sudo chmod 755 _bz2.cpython-38-x86_64-linux-gnu.so
+#
+# 19. sudo mv _bz2.cpython-38-x86_64-linux-gnu.so _bz2.cpython-37m-x86_64-linux-gnu.so # change 38 to 37m since it is for python 3.7
+#
+# 20. sudo cp _bz2.cpython-37m-x86_64-linux-gnu.so ../site-packages/
 
 installation_dir=${HOME}/projects/.localpythons/3.7.13
 
